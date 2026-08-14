@@ -10,13 +10,24 @@
 module.exports = (err, req, res, next) => {
   console.error(err);
   if (err.code === "P2002") {
-    return res.status(409).json({ success: false, message: "Registro duplicado", fields: err.meta?.target || [] });
+    return res
+      .status(409)
+      .json({
+        success: false,
+        message: "Registro duplicado",
+        fields: err.meta?.target || [],
+      });
   }
   if (err.code === "P2025") {
-    return res.status(404).json({ success: false, message: "Registro não encontrado" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Registro não encontrado" });
   }
   res.status(err.status || 500).json({
     success: false,
-    message: process.env.NODE_ENV === "production" ? "Erro interno do servidor" : err.message
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Erro interno do servidor"
+        : err.message,
   });
 };

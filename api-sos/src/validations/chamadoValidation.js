@@ -13,8 +13,12 @@ const create = [
   body("latitude").isFloat({ min: -90, max: 90 }),
   body("longitude").isFloat({ min: -180, max: 180 }),
   body("endereco").optional().isString(),
-  body("descricao").optional().isString()
+  body("descricao").optional().isString(),
 ];
 const id = [uuid("id")];
 // Exporta a configuração/função para ser reutilizada por outros módulos.
-module.exports = { create, id, categoriaQuery: [query("categoriaId").isInt({ min: 1 })] };
+module.exports = {
+  create,
+  id,
+  categoriaQuery: [query("categoriaId").isInt({ min: 1 })],
+};

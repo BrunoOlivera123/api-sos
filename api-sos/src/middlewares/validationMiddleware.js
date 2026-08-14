@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
     return res.status(422).json({
       success: false,
       message: "Dados inválidos",
-      errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
+      errors: errors.array().map((e) => ({ field: e.path, message: e.msg })),
     });
   }
   next();

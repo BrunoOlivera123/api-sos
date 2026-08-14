@@ -6,5 +6,6 @@
  * Os comentários foram adicionados para facilitar o estudo e a manutenção.
  */
 
-const app=require("./app"),{port}=require("./config/env");
-app.listen(port,()=>console.log(`API SOS rodando na porta ${port}`));
+const app = require("./app"),
+  { port } = require("./config/env");
+app.listen(port, () => console.log(`API SOS rodando na porta ${port}`));

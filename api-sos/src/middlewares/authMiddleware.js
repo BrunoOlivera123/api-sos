@@ -12,12 +12,16 @@ const { verifyToken } = require("../utils/jwt");
 module.exports = (req, res, next) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {
-    return res.status(401).json({ success: false, message: "Token não informado" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Token não informado" });
   }
   try {
     req.user = verifyToken(header.substring(7));
     next();
   } catch {
-    return res.status(401).json({ success: false, message: "Token inválido ou expirado" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Token inválido ou expirado" });
   }
 };
