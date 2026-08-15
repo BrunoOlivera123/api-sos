@@ -10,10 +10,7 @@ const { PrismaClient } = require("@prisma/client"); // Cliente Prisma usado para
 const prisma = new PrismaClient();
 async function main() {
   for (const nome of [
-    "Eletricista",
-    "Encanador",
     "Mecânico",
-    "Chaveiro",
     "Guincho",
     "Assistência Geral",
   ]) {

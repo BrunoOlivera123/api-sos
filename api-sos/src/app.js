@@ -15,35 +15,49 @@ const rateLimit = require("./middlewares/rateLimitMiddleware"),
   prisma = require("./config/database"),
   { frontendUrl } = require("./config/env");
 const app = express(); // Registra middleware/rotas no Express.
-app.use(helmet()); // Registra middleware/rotas no Express.
-app.use(cors({ origin: frontendUrl, credentials: true })); // Registra middleware/rotas no Express.
-app.use(express.json()); // Registra middleware/rotas no Express.
-app.use(morgan("dev")); // Registra middleware/rotas no Express.
-app.use(rateLimit);
-// Define um endpoint HTTP GET.
-app.get("/api/health", async (req, res) => {
-  let db = "ok";
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-  } catch {
-    db = "error";
+  app.use(helmet()); // Registra middleware/rotas no Express.
+  app.use(cors({ origin: frontendUrl, credentials: true })); // Registra middleware/rotas no Express.
+  app.use(express.json()); // Registra middleware/rotas no Express.
+// Aceita também corpos enviados como texto (Postman -> raw -> Text)
+  app.use(express.text({ type: ["text/*"] }));
+// Tentativa de converter corpo textual JSON em objeto para compatibilidade
+  app.use((req, res, next) => {
+  if (req.body && typeof req.body === "string") {
+    try {
+      req.body = JSON.parse(req.body);
+    } catch (e) {
+      // Não é JSON — deixa como está para as rotas lidarem
+    }
   }
-  res.json({
-    success: true,
-    message: "API SOS funcionando",
-    timestamp: new Date().toISOString(),
-    database: db,
-  });
+  next();
 });
+  app.use(morgan("dev")); // Registra middleware/rotas no Express.
+  app.use(rateLimit);
+// Define um endpoint HTTP GET.
+  app.get("/api/health", async (req, res) => {
+    let db = "ok";
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch {
+      db = "error";
+    }
+    res.json({
+      success: true,
+      message: "API SOS funcionando",
+      timestamp: new Date().toISOString(),
+      database: db,
+    });
+  });
 // Registra middleware/rotas no Express.
-app.use("/api/auth", require("./routes/authRoutes")); // Registra middleware/rotas no Express.
-app.use("/api/clientes", require("./routes/clienteRoutes")); // Registra middleware/rotas no Express.
-app.use("/api/prestadores", require("./routes/prestadorRoutes")); // Registra middleware/rotas no Express.
-app.use("/api/categorias", require("./routes/categoriaRoutes")); // Registra middleware/rotas no Express.
-app.use("/api/chamados", require("./routes/chamadoRoutes"));
-// Registra middleware/rotas no Express.
-app.use((req, res) =>
-  res.status(404).json({ success: false, message: "Rota não encontrada" }),
-); // Registra middleware/rotas no Express.
-app.use(error);
-module.exports = app;
+  app.use("/api/auth", require("./routes/authRoutes")); // Registra middleware/rotas no Express.
+  app.use("/api/clientes", require("./routes/clienteRoutes")); // Registra middleware/rotas no Express.
+  app.use("/api/prestadores", require("./routes/prestadorRoutes")); // Registra middleware/rotas no Express.
+  app.use("/api/categorias", require("./routes/categoriaRoutes")); // Registra middleware/rotas no Express.
+  app.use("/api/chamados", require("./routes/chamadoRoutes"));
+  // Registra middleware/rotas no Express.
+  app.use((req, res) =>
+    res.status(404).json({ success: false, message: "Rota não encontrada" }),
+  ); // Registra middleware/rotas no Express.
+  app.use(error);
+  
+  module.exports = app;
