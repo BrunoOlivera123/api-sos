@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusChamado {
+  ABERTO
+  ACEITO
+  EM_ATENDIMENTO
+  CONCLUIDO
+  CANCELADO
+}
+
+model Cliente {
+  id           String    @id @default(uuid()) @db.Uuid
+  nome         String
+  email        String    @unique
+  senhaHash    String
+  telefone     String?
+  cpf          String    @unique
+  dataCadastro DateTime  @default(now())
+  chamados     Chamado[]
+
+  @@map("clientes")
+}
+
+model Prestador {
+  id           String    @id @default(uuid()) @db.Uuid
+  nome         String
+  email        String    @unique
+  senhaHash    String
+  telefone     String?
+  cpf          String    @unique
+  categoriaId  Int
+  categoria    Categoria @relation(fields: [categoriaId], references: [id])
+  disponivel   Boolean   @default(true)
+  latitude     Float?
+  longitude    Float?
+  dataCadastro DateTime  @default(now())
+  chamados     Chamado[]
+
+  @@map("prestadores")
+}
+
+model Categoria {
+  id          Int         @id @default(autoincrement())
+  nome        String      @unique
+  prestadores Prestador[]
+  chamados    Chamado[]
+
+  @@map("categorias")
+}
+
+model Chamado {
+  id            String        @id @default(uuid()) @db.Uuid
+  clienteId     String        @db.Uuid
+  cliente       Cliente       @relation(fields: [clienteId], references: [id])
+  categoriaId   Int
+  categoria     Categoria     @relation(fields: [categoriaId], references: [id])
+  prestadorId   String?       @db.Uuid
+  prestador     Prestador?    @relation(fields: [prestadorId], references: [id])
+  latitude      Float
+  longitude     Float
+  endereco      String?
+  descricao     String?
+  status        StatusChamado @default(ABERTO)
+  dataAbertura  DateTime      @default(now())
+  dataAceite    DateTime?
+  dataConclusao DateTime?
+  avaliacao     Avaliacao?
+
+  @@map("chamados")
+}
+
+model Avaliacao {
+  id            String   @id @default(uuid()) @db.Uuid
+  chamadoId     String   @unique @db.Uuid
+  chamado       Chamado  @relation(fields: [chamadoId], references: [id])
+  nota          Int
+  comentario    String?
+  dataAvaliacao DateTime @default(now())
+
+  @@map("avaliacoes")
+}
